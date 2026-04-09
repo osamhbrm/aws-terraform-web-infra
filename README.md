@@ -25,7 +25,7 @@ IaC Tool: Terraform
 
 Web Server: Apache (HTTPD)
 
-Database: Amazon RDS (MariaDB)
+Database: mysql
 
 Secrets Management: AWS Secrets Manager
 
