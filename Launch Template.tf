@@ -1,6 +1,6 @@
 resource "aws_launch_template" "web_config" {
   name_prefix   = "web-config-"
-  image_id      = "ami-0c101f26f147fa7fd" 
+  image_id      = data.aws_ami.image.image_id
   instance_type = "t2.micro"
 iam_instance_profile {
     name = aws_iam_instance_profile.web_profile.name
@@ -39,5 +39,16 @@ iam_instance_profile {
   )
   lifecycle {
     create_before_destroy = true
+  }
+}
+data "aws_ami" "image" {
+
+  most_recent = true
+  owners      = ["amazon"]
+
+
+  filter {
+    name   = "name"
+    values = ["al2023-ami-2023*-kernel-6.1-x86_64*"]
   }
 }
