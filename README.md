@@ -4,13 +4,13 @@ This repository contains a production-grade, highly available web infrastructure
 🏗️ Architecture Features
 Networking: Custom VPC with Public and Private Subnets distributed across multiple Availability Zones (Multi-AZ) for maximum resilience.
 
-Security: * Security Group Chaining: Implemented strict multi-tier traffic control between the Load Balancer, Web servers, and Database.
+Security:  Security Group Chaining: Implemented strict multi-tier traffic control between the Load Balancer, Web servers, and Database.
 
 Database Isolation: The RDS instance resides in private subnets with no direct internet exposure.
 
 IAM Roles & Instance Profiles: Used for secure, keyless access to AWS services (Secrets Manager) without static credentials.
 
-Automation & Scalability: * Auto Scaling Group (ASG): Configured with Instance Refresh policies for seamless updates.
+Automation & Scalability:  Auto Scaling Group (ASG): Configured with Instance Refresh policies for seamless updates.
 
 Application Load Balancer (ALB): Efficiently distributes incoming traffic across healthy instances.
 
