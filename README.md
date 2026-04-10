@@ -18,6 +18,9 @@ Secrets Management: Dynamic retrieval of RDS credentials via AWS Secrets Manager
 
 Secure Outbound Access: NAT Gateways allow instances in private subnets to fetch system updates securely.
 
+🏗️  Architecture Diagram
+![Infrastructure Architecture](./image/architecture-diagram.png)
+
 🛠️ Technology Stack
 Cloud Provider: AWS
 
