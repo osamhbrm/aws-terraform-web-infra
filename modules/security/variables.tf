@@ -1,0 +1,4 @@
+variable "SecretM" {}
+variable "vpc" {
+
+}

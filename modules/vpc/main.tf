@@ -1,6 +1,5 @@
-provider "aws" {
-  region = "us-east-1"
-
+data "aws_availability_zones" "available" {
+  state = "available"
 }
 resource "aws_vpc" "main" {
   cidr_block       = "10.0.0.0/24"
@@ -10,9 +9,9 @@ resource "aws_vpc" "main" {
   }
 }
 resource "aws_subnet" "public1" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.0.0/27"
-  availability_zone = "us-east-1a"
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.0.0/27"
+  availability_zone       = "us-east-1a"
   map_public_ip_on_launch = true
 
   tags = {
@@ -20,18 +19,18 @@ resource "aws_subnet" "public1" {
   }
 }
 resource "aws_subnet" "public2" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.0.32/27"
-  availability_zone = "us-east-1b"
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.0.32/27"
+  availability_zone       = "us-east-1b"
   map_public_ip_on_launch = true
 
   tags = {
     Name = "public2"
- }
+  }
 }
 resource "aws_subnet" "private1" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.0.64/27"
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.0.64/27"
   availability_zone = "us-east-1a"
 
   tags = {
@@ -39,8 +38,8 @@ resource "aws_subnet" "private1" {
   }
 }
 resource "aws_subnet" "private2" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.0.96/27"
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.0.96/27"
   availability_zone = "us-east-1b"
 
   tags = {
@@ -48,8 +47,8 @@ resource "aws_subnet" "private2" {
   }
 }
 resource "aws_subnet" "private1-db" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.0.128/27"
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.0.128/27"
   availability_zone = "us-east-1a"
 
   tags = {
@@ -57,8 +56,8 @@ resource "aws_subnet" "private1-db" {
   }
 }
 resource "aws_subnet" "private2-db" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.0.160/27"
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.0.160/27"
   availability_zone = "us-east-1b"
 
   tags = {
@@ -76,7 +75,7 @@ resource "aws_internet_gateway" "gw" {
 resource "aws_route_table" "example" {
   vpc_id = aws_vpc.main.id
 
-   route {
+  route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.gw.id
   }
@@ -87,7 +86,7 @@ resource "aws_route_table" "example" {
 resource "aws_route_table" "private-route1" {
   vpc_id = aws_vpc.main.id
 
-   route {
+  route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_nat_gateway.nat1.id
   }
@@ -98,7 +97,7 @@ resource "aws_route_table" "private-route1" {
 resource "aws_route_table" "private-route2" {
   vpc_id = aws_vpc.main.id
 
-   route {
+  route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_nat_gateway.nat2.id
   }
@@ -106,40 +105,22 @@ resource "aws_route_table" "private-route2" {
     Name = "private2"
   }
 }
-resource "aws_route_table_association" "association3" {
-  subnet_id      = aws_subnet.private1.id
-  route_table_id = aws_route_table.private-route1.id
-}
-resource "aws_route_table_association" "association5" {
-  subnet_id      = aws_subnet.private1-db.id
-  route_table_id = aws_route_table.private-route1.id
-}
+resource "aws_route_table_association" "all_associations" {
+  for_each = { "private1" = { subnet = aws_subnet.private1.id, route = aws_route_table.private-route1.id }
+    "private2"    = { subnet = aws_subnet.private2.id, route = aws_route_table.private-route2.id }
+    "private1-db" = { subnet = aws_subnet.private1-db.id, route = aws_route_table.private-route1.id }
+    "private2-db" = { subnet = aws_subnet.private2-db.id, route = aws_route_table.private-route2.id }
+    "public1"     = { subnet = aws_subnet.public1.id, route = aws_route_table.example.id }
+  "public2" = { subnet = aws_subnet.public2.id, route = aws_route_table.example.id } }
 
-resource "aws_route_table_association" "association4" {
-  subnet_id      = aws_subnet.private2.id
-  route_table_id = aws_route_table.private-route2.id
-}
-resource "aws_route_table_association" "association6" {
-  subnet_id      = aws_subnet.private2-db.id
-  route_table_id = aws_route_table.private-route2.id
-}
-
-
-
-
-resource "aws_route_table_association" "association1" {
-  subnet_id      = aws_subnet.public1.id
-  route_table_id = aws_route_table.example.id
-}
-resource "aws_route_table_association" "association2" {
-  subnet_id      = aws_subnet.public2.id
-  route_table_id = aws_route_table.example.id
+  subnet_id      = each.value.subnet
+  route_table_id = each.value.route
 }
 resource "aws_eip" "lb1" {
-  domain   = "vpc"
+  domain = "vpc"
 }
 resource "aws_eip" "lb2" {
-  domain   = "vpc"
+  domain = "vpc"
 }
 resource "aws_nat_gateway" "nat1" {
   allocation_id = aws_eip.lb1.id
